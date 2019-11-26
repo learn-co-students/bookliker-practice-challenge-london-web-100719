@@ -16,18 +16,25 @@ const getBookData = () => {
     .then(json => json.forEach(book => renderBookListEl(book)))
 }
 
+const bookClickHandler = (book) => {
+  renderBookPanel(book)
+}
+
+const likeClickHandler = (book) => {
+  const users = book.users
+  if (users.find(e => e.id === user.id)) {
+    window.alert("You've already liked this book!")
+  } else {
+    addUserToBook(book)
+  }
+}
+
 const renderBookListEl = (book) => {
   const li = document.createElement("li")
   li.addEventListener("click", () => { bookClickHandler(book) })
   li.innerText = book.title
   bookList.append(li)
 }
-
-// does this 1-line method make sense?
-const bookClickHandler = (book) => {
-  renderBookPanel(book)
-}
-
 
 const renderBookPanel = (book) => {
   bookPanel.innerHTML = ''
@@ -51,15 +58,6 @@ const renderBookPanel = (book) => {
   })
 
   bookPanel.append(h2, img, p, ul, btn)
-}
-
-const likeClickHandler = (book) => {
-  const users = book.users
-  if (users.find(e => e.id === user.id)) {
-    window.alert("You've already liked this book!")
-  } else {
-    addUserToBook(book)
-  }
 }
 
 const addUserToBook = (book) => {

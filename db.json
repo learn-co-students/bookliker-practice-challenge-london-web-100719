@@ -13,10 +13,6 @@
         {
           "id": 8,
           "username": "goodwin"
-        },
-        {
-          "id": 1,
-          "username": "pouros"
         }
       ]
     },
@@ -129,6 +125,10 @@
         {
           "id": 5,
           "username": "king"
+        },
+        {
+          "id": 1,
+          "username": "pouros"
         }
       ]
     },

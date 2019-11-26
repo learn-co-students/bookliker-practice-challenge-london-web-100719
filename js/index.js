@@ -10,24 +10,27 @@ function run() {
   getBookData()
 }
 
-const getBookData = () => {
-  fetch(API_BOOKS)
+const handleHTTPRequest = (url, callback, config = {}) => {
+  return fetch(url, config)
     .then(res => res.json())
-    .then(json => json.forEach(book => renderBookListEl(book)))
+    .then(json => callback(json))
 }
 
-const bookClickHandler = (book) => {
-  renderBookPanel(book)
+
+const getBookData = () => handleHTTPRequest(API_BOOKS, renderBookList)
+
+const renderBookList = (json) => json.forEach(book => renderBookListEl(book))
+
+const bookClickHandler = (book) => renderBookPanel(book)
+
+const likeButtonHandler = (book) => {
+  const btn = document.createElement("button")
+  hasUserLiked(book) ? btn.innerText = "Un-Like Book" : btn.innerText = "Like Book"
+  btn.addEventListener("click", () => { toggleLike(book) })
+  return btn
 }
 
-const likeClickHandler = (book) => {
-  const users = book.users
-  if (users.find(e => e.id === user.id)) {
-    window.alert("You've already liked this book!")
-  } else {
-    addUserToBook(book)
-  }
-}
+const hasUserLiked = (book) => !!book.users.find(e => e.id === user.id)
 
 const renderBookListEl = (book) => {
   const li = document.createElement("li")
@@ -39,40 +42,46 @@ const renderBookListEl = (book) => {
 const renderBookPanel = (book) => {
   bookPanel.innerHTML = ''
 
-  const h2 = document.createElement("h2")
+  const h2 = buildElement("h2", book.title)
+  const p = buildElement("p", book.description)
   const img = document.createElement("img")
-  const p = document.createElement("p")
-  const ul = document.createElement("ul")
-  const btn = document.createElement("button")
-
-  h2.innerText = book.title
   img.src = book.img_url
-  p.innerText = book.description
-  btn.innerText = "Like Book"
-  btn.addEventListener("click", () => { likeClickHandler(book) })
+  const ul = document.createElement("ul")
+  buildListForUl(book, ul)
+  let btn = likeButtonHandler(book)
+  bookPanel.append(h2, img, p, ul, btn)
+}
 
+const buildElement = (element, content) => {
+  let el = document.createElement(element)
+  el.innerText = content
+  return el
+}
+
+const buildListForUl = (book, ul) => {
   book.users.forEach(user => {
     const li = document.createElement("li")
     li.innerText = user.username
     ul.append(li)
   })
-
-  bookPanel.append(h2, img, p, ul, btn)
 }
 
-const addUserToBook = (book) => {
+const toggleLike = (book) => {
+  hasUserLiked(book) ? book.users = book.users.filter(e => e.id !== user.id) : book.users.push(user)
   const patch_url = API_BOOKS + `/${book.id}`
-  book.users.push(user)
-  obj = {
-    "method": "PATCH",
+  let config = generateConfig("PATCH", book)
+  return handleHTTPRequest(patch_url, renderBookPanel, config)
+}
+
+const generateConfig = (method, body) => {
+  return config = {
+    "method": `${method}`,
     "headers": {
       "Content-Type": "application/json"
     },
-    "body": JSON.stringify(book)
+    "body": JSON.stringify(body)
   }
-  fetch(patch_url, obj)
-    .then(res => res.json())
-    .then(json => renderBookPanel(json))
 }
+
 
 run()

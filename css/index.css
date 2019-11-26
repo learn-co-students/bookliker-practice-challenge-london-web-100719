@@ -9,7 +9,7 @@ body {
 	grid-template-columns: 4fr 8fr;
 	background-image: linear-gradient(rgb(255, 252, 212), rgb(204, 168, 114));
 	background-repeat: no-repeat;
-    background-attachment: fixed;
+    	background-attachment: fixed;
 }
 
 

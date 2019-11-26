@@ -11,6 +11,8 @@ API_USERS = "/users"
 const list = document.querySelector("#list")
 const show = document.querySelector("#show-panel")
 
+let LIKED = false
+
 const getBooks = () => {
   fetch(`${API_ENDPOINT}${API_BOOKS}`)
   .then(resp => resp.json())
@@ -42,8 +44,14 @@ const showBook = (book) => {
   let button = document.createElement("button")
   button.style.height = '100px'
   button.style.width = '100px'
-  button.style.backgroundColor = "firebrick"
-  button.textContent = `LIKE`
+
+  if (LIKED) {
+    button.style.backgroundColor = "grey"
+    button.textContent = `UNLIKE`
+  } else {
+    button.style.backgroundColor = "firebrick"
+    button.textContent = `LIKE`
+  }
   button.addEventListener("click", () => updateUsers(book))
 
   show.appendChild(image)
@@ -58,26 +66,31 @@ const showBook = (book) => {
     ul.appendChild(li)
   })
 
-  const updateUsers = (book) => {
-    
-    let user = {id: 1, username: "pouros"}
+}
 
+const updateUsers = (book) => {
+
+  let user = {id: 1, username: "pouros"}
+
+  if (book.users.map(x => x.id).includes(user.id)) {
+    book.users.pop()
+    LIKED = false
+  } else {
     book.users.push(user)
-    
-    const configObj = {
-      method: "PATCH",
-      headers: {
-        "content-type": "application/json",
-        "accept": "application/json"
-      },
-      body: JSON.stringify(book)
-    }
-
-
-    fetch(`${API_ENDPOINT}${API_BOOKS}/${book.id}`, configObj).then(showBook(book))
+    LIKED = true
   }
-  
 
+  const configObj = {
+    method: "PATCH",
+    headers: {
+      "content-type": "application/json",
+      "accept": "application/json"
+    },
+    body: JSON.stringify(book)
+  }
+
+
+  fetch(`${API_ENDPOINT}${API_BOOKS}/${book.id}`, configObj).then(showBook(book))
 }
 
 getBooks()

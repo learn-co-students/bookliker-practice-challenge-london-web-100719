@@ -21,10 +21,7 @@ const getUserDetails = (id) => {
 }
 
 const assignUserDetails = (userData) => {
-    return user =  {
-        "id": userData.id,
-        "username": userData.username
-    }
+    return user =  { "id": userData.id, "username": userData.username }
 }
 
 const loadBooks = () => {
@@ -41,11 +38,11 @@ const generateBookListItems = (booksData) => {
 
 const renderBookListItem = (book) => {
     const bookLi = renderElement("li", book.title);
-    bookLi.addEventListener('click', () => bookClickHandler(book.id));
+    bookLi.addEventListener('click', bookClickHandler(book.id));
     return bookLi;
 };
 
-const bookClickHandler = (id) => {
+const bookClickHandler = (id) => e => {
     return processHTTPRequest(createBookPageElements, `${BOOKS_URL}/${id}`);
 }
 
@@ -53,30 +50,33 @@ const createBookPageElements = (book) => {
     const bookContainer = renderElement("div");
     const title = renderElement("h1", book.title);
     const description = renderElement("p", book.description);
-    const readButton = renderElement("button", "Read Book");
     const image = renderElement("img");
     const readList = renderElement("ul");
 
-    elements = [title, image, description, readList, readButton];
+    let buttonText = "";
+    hasUserAlreadyRead(book) ? buttonText = "Unlike Book": buttonText = "Like Book";
+    const readButton = renderElement("button", buttonText);
+
+    elements = [title, image, description, readButton, readList];
 
     image.src = book.img_url;
     readList.classList.add("read-list");
     appendReadersToReadList(readList, book.users);
-    readButton.addEventListener('click', updateReadListHandler(book));
+    readButton.addEventListener('click', updateReadListHandler(book, readButton));
 
     renderElementsToPage(elements, bookContainer)
-}
-
-const renderElementsToPage = (elements, bookContainer) => {
-    bookContainer.append(...elements);
-    showPanel.innerHTML = "";
-    showPanel.append(bookContainer);
 }
 
 const renderElement = (element, content = "") => {
     item = document.createElement(element);
     item.textContent = content;
     return item
+}
+
+const renderElementsToPage = (elements, bookContainer) => {
+    bookContainer.append(...elements);
+    showPanel.innerHTML = "";
+    showPanel.append(bookContainer);
 }
 
 const appendReadersToReadList = (readList, users) => {
@@ -86,17 +86,23 @@ const appendReadersToReadList = (readList, users) => {
     })
 }
 
-const updateReadListHandler = (book) => e => {
+const updateReadListHandler = (book, button) => e => {
     if (hasUserAlreadyRead(book)) {
-        return alert("you already read this");
+        removeUserFromList(book);
+        button.textContent = "Like Book";
     } else {
         addNewReaderToList(book);
-        makePatchRequest(book, "PATCH");
+        button.textContent = "Unlike Book";
     }
+    makePatchRequest(book, "PATCH");
 }
 
 const hasUserAlreadyRead = (book) => {
-    return book.users.find(users => users.id == user["id"]);
+    return book.users.find(users => users.id === user["id"]);
+}
+
+const removeUserFromList = (book) => {
+    return book.users = book.users.filter(_user => _user.id !== user["id"]);
 }
 
 const addNewReaderToList = (book) => {
@@ -131,7 +137,3 @@ const processHTTPRequest = (callback, url, configObj = {}) => {
 }
 
 run();
-
-
-
-

@@ -5,6 +5,7 @@ const BOOKS_URL = `${API_ENDPOINT}/books`
 // DOM elements
 const ul = document.querySelector("#list")
 const show = document.querySelector("#show-panel")
+const currentUser = {"id":1, "username":"pouros"}
 
 
 // fetch books
@@ -40,6 +41,9 @@ function renderBookTitle(book) {
 
 // render single book item
 function renderBookItem(book) {
+    show.innerHTML = ""
+    // while (show.firstChild) show.removeChild(show.firstChild);
+
     let h3 = document.createElement("h3")
     h3.innerText = book.title
 
@@ -62,6 +66,7 @@ function renderBookItem(book) {
     btn.innerText = "Like Book"
 
     btn.addEventListener("click", function() {
+        book.users.push(currentUser)
         likeBook(book)
     })
 
@@ -70,11 +75,8 @@ function renderBookItem(book) {
     return show
 }
 
-
 // like book
 function likeBook(book) {
-    event.preventDefault()
-
     let configObj = {
         method: "PATCH",
         headers: {
@@ -82,13 +84,16 @@ function likeBook(book) {
             "Accept": "application/json"
         },
         body: JSON.stringify({
-            users: book.users << {"id":1, "username":"pouros"}
+            "users": book.users
         })
     }
 
     fetch (`${BOOKS_URL}/${book.id}`, configObj)
+        .then(function(resp) {
+            return resp.json()
+        })
         .then(function() {
-            console.log("Patching took place")
+            renderBookItem(book)
         })
 }
 

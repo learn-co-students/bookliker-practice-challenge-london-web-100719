@@ -6,10 +6,7 @@ const URL = "http://localhost:3000";
 const BOOKS_URL = `${URL}/books`;
 const USERS_URL = `${URL}/users`;
 
-let user = {
-    "id" : null,
-    "username" : null
-}
+let user = { "id" : null, "username" : null }
 
 const run = () => {
     getUserDetails(1);
@@ -60,6 +57,7 @@ const createBookPageElements = (book) => {
     elements = [title, image, description, readButton, readList];
 
     image.src = book.img_url;
+    image.height = 200;
     readList.classList.add("read-list");
     appendReadersToReadList(readList, book.users);
     readButton.addEventListener('click', updateReadListHandler(book, readButton));
@@ -75,7 +73,7 @@ const renderElement = (element, content = "") => {
 
 const renderElementsToPage = (elements, bookContainer) => {
     bookContainer.append(...elements);
-    showPanel.innerHTML = "";
+    while (showPanel.firstChild) showPanel.removeChild(showPanel.firstChild);
     showPanel.append(bookContainer);
 }
 
@@ -98,19 +96,17 @@ const updateReadListHandler = (book, button) => e => {
 }
 
 const hasUserAlreadyRead = (book) => {
-    return book.users.find(users => users.id === user["id"]);
+    return book.users.find(_user => _user.id === user["id"]);
 }
 
 const removeUserFromList = (book) => {
     return book.users = book.users.filter(_user => _user.id !== user["id"]);
 }
 
-const addNewReaderToList = (book) => {
-    return book.users.push(user);
-}
+const addNewReaderToList = (book) => book.users.push(user);
 
 const makePatchRequest = (book, method) => {
-    configObj = generateConfigObj(book, method);
+    const configObj = generateConfigObj(book, method);
     return processHTTPRequest(updateReadList, `${BOOKS_URL}/${book.id}`, configObj)
 }
 

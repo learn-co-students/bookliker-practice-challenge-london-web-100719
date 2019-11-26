@@ -65,7 +65,20 @@ let showBook = (event) => {
 		bookHeading.textContent = book.title;
 		bookPicture.src = book.img_url;
 		bookDescrip.textContent = book.description;
-		bookReadBut.textContent = 'Read Book';
+		// bookReadBut.classList.add('btn');
+
+		if (book.users.map(el => el.id).includes(currentUser.id)) {
+
+			bookReadBut.textContent = 'Unlike Book';
+			bookReadBut.className = 'liked';
+
+		} else {
+
+			bookReadBut.textContent = 'Like Book';
+			bookReadBut.className = 'unliked';
+
+		}
+
 		bookReadBut.id = book.id;
 
 		bookReadBut.addEventListener('click', readBook);
@@ -97,18 +110,18 @@ let readBook = (event) => {
 
 	let book = allBooks.find(book => book.id == targetId);
 
-	for (user of book.users) {
-
-		if (user.id == currentUser.id) {
-
-			alert("You've already read this book my guy");
-			return;
-
-		};
-
-	};
-
-	book.users.push(currentUser);
+	if (book.users.map(el => el.id).includes(currentUser.id)) {
+		// debugger;
+		let index = book.users.findIndex(el => el.id == currentUser.id);
+		book.users.splice(index, 1);
+		document.querySelector('button').textContent = "Like Book";
+		document.querySelector('button').className = 'unliked';
+	} else {
+		// debugger;
+		book.users.push(currentUser);
+		document.querySelector('button').textContent = "Unlike Book";
+		document.querySelector('button').className = 'liked';
+	}
 
 	let readerDataObj = {
 
@@ -118,11 +131,7 @@ let readBook = (event) => {
 			"Content-Type": "application/json"
 
 		},
-		body: JSON.stringify(
-
-			{"users": book.users}
-
-		)
+		body: JSON.stringify(book)
 
 	};
 
